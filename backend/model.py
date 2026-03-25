@@ -1,47 +1,42 @@
 import pandas as pd
-from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_absolute_error
-import joblib
 
 # Load data
-df = pd.read_csv('../data/sales.csv')
+df = pd.read_csv('../data/train.csv')
 
-# Convert Date
-df['Date'] = pd.to_datetime(df['Date'])
+# Convert date
+df['date'] = pd.to_datetime(df['date'])
 
-# Select useful columns
-df = df[['Date', 'Product line', 'Unit price', 'Quantity', 'Total']]
-
-# Feature Engineering
-df['day'] = df['Date'].dt.day
-df['month'] = df['Date'].dt.month
-df['day_of_week'] = df['Date'].dt.dayofweek
-
-# Convert categorical to numerical
-df = pd.get_dummies(df, columns=['Product line'])
+# Feature Engineering (VERY IMPORTANT 🔥)
+df['day'] = df['date'].dt.day
+df['month'] = df['date'].dt.month
+df['day_of_week'] = df['date'].dt.dayofweek
+df['week'] = df['date'].dt.isocalendar().week
 
 # Features & Target
-X = df.drop(['Total', 'Date'], axis=1)
-y = df['Total']
+X = df[['store', 'item', 'day', 'month', 'day_of_week', 'week']]
+y = df['sales']
 
-# Train-Test Split
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+# Time-based split (IMPORTANT)
+df = df.sort_values('date')
+
+split = int(len(df) * 0.8)
+
+X_train = X[:split]
+X_test = X[split:]
+
+y_train = y[:split]
+y_test = y[split:]
 
 # Model
-model = RandomForestRegressor(n_estimators=200, max_depth=10, random_state=42)
+model = RandomForestRegressor(n_estimators=100, random_state=42)
 model.fit(X_train, y_train)
 
-# Predictions
-predictions = model.predict(X_test)
+# Prediction
+pred = model.predict(X_test)
 
 # Evaluation
-error = mean_absolute_error(y_test, predictions)
+error = mean_absolute_error(y_test, pred)
 
-print("Model trained successfully!")
-print("Mean Absolute Error:", error)
-
-
-
-joblib.dump(model, 'sales_model.pkl')
-print("Model saved!")
+print("MAE:", error)

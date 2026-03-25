@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sales Prediction</title>
+</head>
+<body>
+
+<h2>Sales Prediction System</h2>
+
+<input id="price" placeholder="Unit Price"><br><br>
+<input id="quantity" placeholder="Quantity"><br><br>
+
+<label>Select Product:</label><br>
+<select id="product">
+    <option value="Product line_Electronic accessories">Electronic accessories</option>
+    <option value="Product line_Fashion accessories">Fashion accessories</option>
+    <option value="Product line_Food and beverages">Food and beverages</option>
+    <option value="Product line_Health and beauty">Health and beauty</option>
+    <option value="Product line_Home and lifestyle">Home and lifestyle</option>
+    <option value="Product line_Sports and travel">Sports and travel</option>
+</select>
+<br><br>
+
+<label>Day:</label>
+<input id="day" type="number" min="1" max="31"><br><br>
+
+<label>Month:</label>
+<input id="month" type="number" min="1" max="12"><br><br>
+
+<label>Day of Week (0=Mon, 6=Sun):</label>
+<input id="dayofweek" type="number" min="0" max="6"><br><br>
+
+<button onclick="predict()">Predict</button>
+
+<h3 id="result"></h3>
+
+<script>
+function predict() {
+    const data = {
+        "Unit price": parseFloat(document.getElementById("price").value),
+        "Quantity": parseInt(document.getElementById("quantity").value),
+        "product": document.getElementById("product").value,
+        "day": parseInt(document.getElementById("day").value),
+        "month": parseInt(document.getElementById("month").value),
+        "day_of_week": parseInt(document.getElementById("dayofweek").value)
+    };
+
+    fetch("http://127.0.0.1:5000/predict", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(data)
+    })
+    .then(res => res.json())
+    .then(data => {
+        document.getElementById("result").innerText =
+            "Predicted Sales: " + data.predicted_sales;
+    })
+    .catch(err => {
+        document.getElementById("result").innerText = "Error occurred!";
+    });
+}
+</script>
+
+</body>
+</html>
