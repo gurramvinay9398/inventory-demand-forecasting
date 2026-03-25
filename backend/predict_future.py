@@ -47,8 +47,29 @@ future_df = pd.DataFrame(future_data)
 
 # Prediction
 predictions = model.predict(future_df)
+predictions = predictions.round().astype(int)
 
 future_df['date'] = [last_date + timedelta(days=i) for i in range(1, days+1)]
 future_df['predicted_demand'] = predictions
 
 print(future_df[['date', 'predicted_demand']])
+
+# 🔥 USER INPUT (stock)
+current_stock = int(input("Enter current stock: "))
+
+# Total predicted demand
+total_demand = future_df['predicted_demand'].sum()
+
+# Safety stock factor
+recommended_stock = int(total_demand * 1.2)
+
+print("\nTotal Predicted Demand:", total_demand)
+print("Recommended Stock:", recommended_stock)
+
+# 🚨 Alerts
+if current_stock < total_demand:
+    print("🚨 ALERT: Low Stock! Reorder needed")
+elif current_stock > recommended_stock:
+    print("⚠️ ALERT: Overstock! Reduce inventory")
+else:
+    print("✅ Stock level is optimal")
