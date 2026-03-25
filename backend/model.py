@@ -1,6 +1,7 @@
 import pandas as pd
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_absolute_error
+import joblib
 
 # Load data
 df = pd.read_csv('../data/train.csv')
@@ -40,3 +41,7 @@ pred = model.predict(X_test)
 error = mean_absolute_error(y_test, pred)
 
 print("MAE:", error)
+
+
+joblib.dump(model, 'demand_model.pkl')
+print("Model saved!")
