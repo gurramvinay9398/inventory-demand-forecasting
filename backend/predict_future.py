@@ -16,6 +16,19 @@ store = int(input("Enter store number: "))
 item = int(input("Enter item number: "))
 days = int(input("Enter number of days to predict (1-10): "))
 
+# Validate input
+if store < 1 or store > 10:
+    print("Invalid store! Choose between 1 and 10")
+    exit()
+
+if item < 1 or item > 50:
+    print("Invalid item! Choose between 1 and 50")
+    exit()
+
+if days < 1 or days > 10:
+    print("Days must be between 1 and 10")
+    exit()
+
 future_data = []
 
 for i in range(1, days + 1):
