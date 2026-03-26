@@ -2,7 +2,6 @@
 <html>
 <head>
 <title>Analytics Dashboard</title>
-
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
@@ -20,45 +19,88 @@ body {
     padding: 20px 40px;
 }
 
-.navbar h2 {
-    color: #e6c9a8;
-}
+.navbar h2 { color: #e6c9a8; }
 
+/* NAV HOVER */
 .nav-links a {
     margin: 0 15px;
     color: white;
     text-decoration: none;
+    position: relative;
 }
 
-/* GRID */
-.container {
-    padding: 20px;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
+.nav-links a:hover { color: #e6c9a8; }
+
+.nav-links a::after {
+    content: "";
+    position: absolute;
+    width: 0%;
+    height: 2px;
+    background: #e6c9a8;
+    bottom: -5px;
+    left: 0;
+    transition: 0.3s;
 }
 
-/* CARD */
+.nav-links a:hover::after {
+    width: 100%;
+}
+
+/* Layout */
+.container { padding: 20px; }
+
 .card {
     background: #1f4e5f;
     padding: 20px;
+    margin: 15px 0;
     border-radius: 12px;
 }
 
-/* FULL WIDTH */
-.full {
-    grid-column: span 2;
+input {
+    padding: 8px;
+    margin: 5px;
+    border-radius: 5px;
+    border: none;
+}
+
+button {
+    background: #d2a679;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+}
+
+/* SMALL CHART */
+.small-chart {
+    max-width: 300px;
+}
+
+/* ITEM BLOCKS */
+.item-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.item-box {
+    background: #e6c9a8;
+    color: #0f2c3f;
+    padding: 10px;
+    border-radius: 8px;
+    transition: 0.3s;
+}
+
+.item-box:hover {
+    transform: scale(1.1);
+    background: #d2a679;
 }
 </style>
-
 </head>
 
 <body>
 
-<!-- NAVBAR -->
 <div class="navbar">
     <h2>📊 Analytics</h2>
-
     <div class="nav-links">
         <a href="home.html">Home</a>
         <a href="index.html">Prediction</a>
@@ -66,73 +108,90 @@ body {
     </div>
 </div>
 
-<!-- DASHBOARD -->
 <div class="container">
 
-    <!-- Demand Trend -->
-    <div class="card full">
-        <h3>📈 Demand Trend</h3>
-        <canvas id="trendChart"></canvas>
-    </div>
+<div class="card">
+    Days: <input id="days" value="7">
+    Top Items: <input id="top_items" value="5">
+    Top Stores: <input id="top_stores" value="5">
+    <button onclick="loadData()">Apply</button>
+</div>
 
-    <!-- Store Comparison -->
-    <div class="card">
-        <h3>🏬 Store Comparison</h3>
-        <canvas id="storeChart"></canvas>
-    </div>
+<div class="card">
+    <canvas id="trendChart"></canvas>
+</div>
 
-    <!-- Item Performance -->
-    <div class="card">
-        <h3>🔥 Top Items</h3>
+<div class="card">
+    <canvas id="storeChart"></canvas>
+</div>
+
+<div class="card">
+    <div class="small-chart">
         <canvas id="itemChart"></canvas>
     </div>
+
+    <h4>Top Items</h4>
+    <div id="itemGrid" class="item-grid"></div>
+</div>
 
 </div>
 
 <script>
+let trendChart, storeChart, itemChart;
 
-// 🔥 Dummy data (later connect backend)
-let demand = [20, 25, 22, 30, 28, 35, 40];
+function loadData() {
 
-// Demand Trend
-new Chart(document.getElementById("trendChart"), {
-    type: 'line',
-    data: {
-        labels: ["Day1","Day2","Day3","Day4","Day5","Day6","Day7"],
-        datasets: [{
-            label: "Demand",
-            data: demand,
-            borderColor: "#d2a679",
-            tension: 0.4
-        }]
-    }
+fetch("http://127.0.0.1:5000/analytics", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({
+        days: +days.value,
+        top_items: +top_items.value,
+        top_stores: +top_stores.value
+    })
+})
+.then(res => res.json())
+.then(data => {
+
+    if (trendChart) trendChart.destroy();
+    if (storeChart) storeChart.destroy();
+    if (itemChart) itemChart.destroy();
+
+    trendChart = new Chart(trendChartCanvas = document.getElementById("trendChart"), {
+        type: 'line',
+        data: {
+            labels: data.trend_labels,
+            datasets: [{ data: data.trend_data }]
+        }
+    });
+
+    storeChart = new Chart(document.getElementById("storeChart"), {
+        type: 'bar',
+        data: {
+            labels: data.store_labels,
+            datasets: [{ data: data.store_data }]
+        }
+    });
+
+    itemChart = new Chart(document.getElementById("itemChart"), {
+        type: 'pie',
+        data: {
+            labels: data.item_labels,
+            datasets: [{ data: data.item_data }]
+        }
+    });
+
+    let html = "";
+    data.item_labels.forEach((item, i) => {
+        html += `<div class="item-box">Item ${item}<br>${data.item_data[i]}</div>`;
+    });
+
+    document.getElementById("itemGrid").innerHTML = html;
+
 });
+}
 
-// Store Comparison
-new Chart(document.getElementById("storeChart"), {
-    type: 'bar',
-    data: {
-        labels: ["Store1","Store2","Store3"],
-        datasets: [{
-            label: "Sales",
-            data: [120, 150, 90],
-            backgroundColor: "#e6c9a8"
-        }]
-    }
-});
-
-// Item Performance
-new Chart(document.getElementById("itemChart"), {
-    type: 'pie',
-    data: {
-        labels: ["Item1","Item2","Item3"],
-        datasets: [{
-            data: [40, 30, 30],
-            backgroundColor: ["#d2a679","#e6c9a8","#c29566"]
-        }]
-    }
-});
-
+loadData();
 </script>
 
 </body>

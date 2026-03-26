@@ -84,6 +84,40 @@ def predict():
 
     except Exception as e:
         return jsonify({"error": str(e)})
+    
+@app.route('/analytics', methods=['POST'])
+def analytics():
+    import pandas as pd
+    from flask import request
+
+    data = request.json
+
+    days = int(data.get("days", 7))
+    top_items_n = int(data.get("top_items", 5))
+    top_stores_n = int(data.get("top_stores", 5))
+
+    df = pd.read_csv('../data/train.csv')
+    df['date'] = pd.to_datetime(df['date'])
+
+    # 📈 Demand trend
+    trend = df.groupby('date')['sales'].sum().tail(days)
+
+    # 🏬 Store performance
+    store = df.groupby('store')['sales'].sum().sort_values(ascending=False).head(top_stores_n)
+
+    # 🔥 Top items
+    items = df.groupby('item')['sales'].sum().sort_values(ascending=False).head(top_items_n)
+
+    return {
+        "trend_labels": trend.index.strftime('%Y-%m-%d').tolist(),
+        "trend_data": trend.values.tolist(),
+
+        "store_labels": store.index.astype(str).tolist(),
+        "store_data": store.values.tolist(),
+
+        "item_labels": items.index.astype(str).tolist(),
+        "item_data": items.values.tolist()
+    }
 
 if __name__ == '__main__':
     app.run(debug=True)
