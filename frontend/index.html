@@ -1,63 +1,216 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Sales Prediction</title>
+<title>AI Inventory Dashboard</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+body {
+    margin: 0;
+    font-family: 'Segoe UI';
+    background: linear-gradient(135deg, #0f2c3f, #1f4e5f);
+    color: #f5f5f5;
+}
+
+/* Layout */
+.container {
+    padding: 20px;
+}
+
+/* Header */
+.header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.header h1 {
+    color: #e6c9a8;
+}
+
+/* Cards */
+.card {
+    background: #1f4e5f;
+    padding: 20px;
+    margin: 10px;
+    border-radius: 12px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.2);
+}
+
+/* Grid */
+.grid {
+    display: flex;
+    gap: 10px;
+}
+
+.grid .card {
+    flex: 1;
+}
+
+/* Inputs */
+select, input {
+    padding: 10px;
+    margin: 5px;
+    border-radius: 6px;
+    border: none;
+    background: #e6c9a8;
+    color: #0f2c3f;
+    font-weight: 500;
+}
+
+/* Button */
+button {
+    background: #d2a679;
+    border: none;
+    padding: 10px 15px;
+    cursor: pointer;
+    color: #0f2c3f;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+button:hover {
+    background: #c29566;
+}
+
+/* Alert */
+.alert-text {
+    font-size: 18px;
+    font-weight: bold;
+    color: #d2a679;
+}
+</style>
+
 </head>
+
 <body>
 
-<h2>Sales Prediction System</h2>
+<div class="container">
 
-<input id="price" placeholder="Unit Price"><br><br>
-<input id="quantity" placeholder="Quantity"><br><br>
+<div class="header">
+    <h1> AI Inventory Intelligence</h1>
+</div>
 
-<label>Select Product:</label><br>
-<select id="product">
-    <option value="Product line_Electronic accessories">Electronic accessories</option>
-    <option value="Product line_Fashion accessories">Fashion accessories</option>
-    <option value="Product line_Food and beverages">Food and beverages</option>
-    <option value="Product line_Health and beauty">Health and beauty</option>
-    <option value="Product line_Home and lifestyle">Home and lifestyle</option>
-    <option value="Product line_Sports and travel">Sports and travel</option>
-</select>
-<br><br>
+<!-- Input -->
+<div class="card">
+    <h3 style="color:#e6c9a8;">Input</h3>
 
-<label>Day:</label>
-<input id="day" type="number" min="1" max="31"><br><br>
+    <select id="store"></select>
+    <select id="item"></select>
+    <select id="days"></select>
 
-<label>Month:</label>
-<input id="month" type="number" min="1" max="12"><br><br>
+    <input id="stock" type="number" placeholder="Enter Stock">
 
-<label>Day of Week (0=Mon, 6=Sun):</label>
-<input id="dayofweek" type="number" min="0" max="6"><br><br>
+    <button onclick="predict()">Predict</button>
+</div>
 
-<button onclick="predict()">Predict</button>
+<!-- KPI -->
+<div class="grid">
+    <div class="card">
+        <h3 style="color:#e6c9a8;">📈 Total Demand</h3>
+        <p id="total">--</p>
+    </div>
 
-<h3 id="result"></h3>
+    <div class="card">
+        <h3 style="color:#e6c9a8;">📦 Recommended Stock</h3>
+        <p id="recommended">--</p>
+    </div>
+
+    <div class="card">
+        <h3 style="color:#e6c9a8;">🚨 Alert</h3>
+        <p id="alertBox" class="alert-text">--</p>
+    </div>
+</div>
+
+<!-- Chart -->
+<div class="card">
+    <h3 style="color:#e6c9a8;">Demand Forecast</h3>
+    <canvas id="chart"></canvas>
+</div>
+
+</div>
 
 <script>
-function predict() {
-    const data = {
-        "Unit price": parseFloat(document.getElementById("price").value),
-        "Quantity": parseInt(document.getElementById("quantity").value),
-        "product": document.getElementById("product").value,
-        "day": parseInt(document.getElementById("day").value),
-        "month": parseInt(document.getElementById("month").value),
-        "day_of_week": parseInt(document.getElementById("dayofweek").value)
-    };
+let chart;
 
-    fetch("http://127.0.0.1:5000/predict", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify(data)
-    })
-    .then(res => res.json())
-    .then(data => {
-        document.getElementById("result").innerText =
-            "Predicted Sales: " + data.predicted_sales;
-    })
-    .catch(err => {
-        document.getElementById("result").innerText = "Error occurred!";
+// Dropdowns
+for (let i = 1; i <= 10; i++)
+    store.innerHTML += `<option value="${i}">Store ${i}</option>`;
+
+for (let i = 1; i <= 50; i++)
+    item.innerHTML += `<option value="${i}">Item ${i}</option>`;
+
+for (let i = 1; i <= 10; i++)
+    days.innerHTML += `<option value="${i}">${i} Days</option>`;
+
+// Predict
+function predict() {
+
+const data = {
+    store: +store.value,
+    item: +item.value,
+    days: +days.value,
+    stock: +stock.value
+};
+
+fetch("http://127.0.0.1:5000/predict", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify(data)
+})
+.then(res => res.json())
+.then(data => {
+
+    document.getElementById("alertBox").innerText = data.alert;
+
+    total.innerText = data.total_demand;
+    recommended.innerText = data.recommended_stock;
+
+    let values = data.daily_predictions.map(d => d.predicted_demand);
+
+    if (chart) chart.destroy();
+
+    chart = new Chart(document.getElementById("chart"), {
+        type: 'line',
+        data: {
+            labels: values.map((_, i) => `Day ${i+1}`),
+            datasets: [{
+                label: "Demand",
+                data: values,
+                borderColor: "#d2a679",
+                backgroundColor: "rgba(230,201,168,0.2)",
+                tension: 0.4,
+                pointBackgroundColor: "#e6c9a8",
+                pointRadius: 4
+            }]
+        },
+        options: {
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return "Demand: " + context.raw;
+                        }
+                    }
+                },
+                legend: {
+                    labels: {
+                        color: "#e6c9a8"
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    ticks: { color: "#e6c9a8" }
+                },
+                y: {
+                    ticks: { color: "#e6c9a8" }
+                }
+            }
+        }
     });
+
+});
 }
 </script>
 
