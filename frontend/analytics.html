@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Analytics Dashboard</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+body {
+    margin: 0;
+    font-family: 'Segoe UI';
+    background: linear-gradient(135deg, #0f2c3f, #1f4e5f);
+    color: white;
+}
+
+/* NAVBAR */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    padding: 20px 40px;
+}
+
+.navbar h2 {
+    color: #e6c9a8;
+}
+
+.nav-links a {
+    margin: 0 15px;
+    color: white;
+    text-decoration: none;
+}
+
+/* GRID */
+.container {
+    padding: 20px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+/* CARD */
+.card {
+    background: #1f4e5f;
+    padding: 20px;
+    border-radius: 12px;
+}
+
+/* FULL WIDTH */
+.full {
+    grid-column: span 2;
+}
+</style>
+
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<div class="navbar">
+    <h2>📊 Analytics</h2>
+
+    <div class="nav-links">
+        <a href="home.html">Home</a>
+        <a href="index.html">Prediction</a>
+        <a href="#">Analytics</a>
+    </div>
+</div>
+
+<!-- DASHBOARD -->
+<div class="container">
+
+    <!-- Demand Trend -->
+    <div class="card full">
+        <h3>📈 Demand Trend</h3>
+        <canvas id="trendChart"></canvas>
+    </div>
+
+    <!-- Store Comparison -->
+    <div class="card">
+        <h3>🏬 Store Comparison</h3>
+        <canvas id="storeChart"></canvas>
+    </div>
+
+    <!-- Item Performance -->
+    <div class="card">
+        <h3>🔥 Top Items</h3>
+        <canvas id="itemChart"></canvas>
+    </div>
+
+</div>
+
+<script>
+
+// 🔥 Dummy data (later connect backend)
+let demand = [20, 25, 22, 30, 28, 35, 40];
+
+// Demand Trend
+new Chart(document.getElementById("trendChart"), {
+    type: 'line',
+    data: {
+        labels: ["Day1","Day2","Day3","Day4","Day5","Day6","Day7"],
+        datasets: [{
+            label: "Demand",
+            data: demand,
+            borderColor: "#d2a679",
+            tension: 0.4
+        }]
+    }
+});
+
+// Store Comparison
+new Chart(document.getElementById("storeChart"), {
+    type: 'bar',
+    data: {
+        labels: ["Store1","Store2","Store3"],
+        datasets: [{
+            label: "Sales",
+            data: [120, 150, 90],
+            backgroundColor: "#e6c9a8"
+        }]
+    }
+});
+
+// Item Performance
+new Chart(document.getElementById("itemChart"), {
+    type: 'pie',
+    data: {
+        labels: ["Item1","Item2","Item3"],
+        datasets: [{
+            data: [40, 30, 30],
+            backgroundColor: ["#d2a679","#e6c9a8","#c29566"]
+        }]
+    }
+});
+
+</script>
+
+</body>
+</html>
