@@ -31,7 +31,7 @@ y_train = y[:split]
 y_test = y[split:]
 
 # Model
-model = RandomForestRegressor(n_estimators=100, random_state=42)
+model = RandomForestRegressor(n_estimators=20, max_depth=10, random_state=42)
 model.fit(X_train, y_train)
 
 # Prediction
