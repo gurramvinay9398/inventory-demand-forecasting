@@ -3,13 +3,17 @@ from flask_cors import CORS
 import joblib
 import pandas as pd
 from datetime import timedelta
-        
+import os 
+from model import train_model      
 
 app = Flask(__name__)
 CORS(app)
 
-model = joblib.load('demand_model.pkl')
-
+MODEL_PATH = "demand_model.pkl"
+if os.path.exists(MODEL_PATH):
+    model = joblib.load('demand_model.pkl')
+else:
+    model=train_model()
 
 
 @app.route('/')
