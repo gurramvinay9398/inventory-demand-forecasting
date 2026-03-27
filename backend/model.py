@@ -15,11 +15,22 @@ def train_model():
 
     # Convert date
 
-    df['date'] = pd.to_datetime(df['date'], errors='coerce', infer_datetime_format=True)
+    # ✅ Clean column names (IMPORTANT)
+    df.columns = df.columns.str.strip()
+
+    # ✅ Convert date manually
+    df['date'] = pd.to_datetime(df['date'], dayfirst=False, errors='coerce')
+
+    # 🔥 If still empty → try alternative parsing
+    if df['date'].isna().all():
+        df['date'] = pd.to_datetime(df['date'], dayfirst=True, errors='coerce')
+
+    # Drop invalid rows
     df = df.dropna(subset=['date'])
 
+    # Final safety
     if df.empty:
-        raise ValueError("Dataset is empty after parsing dates")
+        raise ValueError("Dataset is empty - date parsing failed completely")
 
 
     # Feature Engineering (VERY IMPORTANT 🔥)
