@@ -51,16 +51,23 @@ def predict():
 
         if 'date' not in df.columns:
             raise ValueError("Date column missing")
-
+        
         df['date'] = pd.to_datetime(df['date'], errors='coerce')
+
+        # 🔥 Convert using explicit parsing fallback
+        if df['date'].isna().sum() > 0:
+            df['date'] = pd.to_datetime(df['date'].astype(str), format='%Y-%m-%d', errors='coerce')
+
+        if df['date'].isna().sum() > 0:
+            df['date'] = pd.to_datetime(df['date'].astype(str), format='%m/%d/%Y', errors='coerce')
+
+        # Drop invalid rows
         df = df.dropna(subset=['date'])
+        print("NaT count:", df['date'].isna().sum())
+        print("After cleaning shape:", df.shape)
 
-        print("Shape:", df.shape)
+        df = df.sort_values(by='date', kind='mergesort')
 
-        if df.empty:
-            raise ValueError("Dataset empty after processing")
-
-        df = df.sort_values('date')
 
         last_date = df['date'].max()
 
@@ -129,16 +136,21 @@ def analytics():
 
     if 'date' not in df.columns:
         raise ValueError("Date column missing")
-
     df['date'] = pd.to_datetime(df['date'], errors='coerce')
+
+    # 🔥 Convert using explicit parsing fallback
+    if df['date'].isna().sum() > 0:
+        df['date'] = pd.to_datetime(df['date'].astype(str), format='%Y-%m-%d', errors='coerce')
+
+    if df['date'].isna().sum() > 0:
+        df['date'] = pd.to_datetime(df['date'].astype(str), format='%m/%d/%Y', errors='coerce')
+
+    # Drop invalid rows
     df = df.dropna(subset=['date'])
+    print("NaT count:", df['date'].isna().sum())
+    print("After cleaning shape:", df.shape)
 
-    print("Shape:", df.shape)
-
-    if df.empty:
-        raise ValueError("Dataset empty after processing")
-
-    df = df.sort_values('date')
+    df = df.sort_values(by='date', kind='mergesort')
 
     
 
