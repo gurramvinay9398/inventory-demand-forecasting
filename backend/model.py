@@ -2,10 +2,15 @@ import pandas as pd
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_absolute_error
 import joblib
+import os
 
 def train_model():
     # Load data
-    df = pd.read_csv('../data/train.csv')
+    #df = pd.read_csv('../data/train.csv')
+    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    DATA_PATH = os.path.join(BASE_DIR, 'data', 'train.csv')
+
+    df = pd.read_csv(DATA_PATH)
 
     # Convert date
     df['date'] = pd.to_datetime(df['date'])

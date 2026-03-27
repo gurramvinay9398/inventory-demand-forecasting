@@ -39,8 +39,10 @@ def predict():
             return jsonify({"error": "Days must be 1-10"})
 
         
+        BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        DATA_PATH = os.path.join(BASE_DIR, 'data', 'train.csv')
 
-        df = pd.read_csv('../data/train.csv')
+        df = pd.read_csv(DATA_PATH)
         df['date'] = pd.to_datetime(df['date'])
 
         last_date = df['date'].max()
@@ -91,16 +93,17 @@ def predict():
     
 @app.route('/analytics', methods=['POST'])
 def analytics():
-    import pandas as pd
-    from flask import request
-
+    
     data = request.json
 
     days = int(data.get("days", 7))
     top_items_n = int(data.get("top_items", 5))
     top_stores_n = int(data.get("top_stores", 5))
 
-    df = pd.read_csv('../data/train.csv')
+    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    DATA_PATH = os.path.join(BASE_DIR, 'data', 'train.csv')
+
+    df = pd.read_csv(DATA_PATH)
     df['date'] = pd.to_datetime(df['date'])
 
     # 📈 Demand trend
