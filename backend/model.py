@@ -14,7 +14,12 @@ def train_model():
     df = pd.read_csv(DATA_PATH)
 
     # Convert date
-    df['date'] = pd.to_datetime(df['date'])
+
+    df['date'] = pd.to_datetime(df['date'], format='%m/%d/%Y', errors='coerce')
+    df = df.dropna(subset=['date'])
+
+    if df.empty:
+        raise ValueError("Dataset is empty after parsing dates")
 
     # Feature Engineering (VERY IMPORTANT 🔥)
     df['day'] = df['date'].dt.day

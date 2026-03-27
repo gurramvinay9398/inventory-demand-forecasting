@@ -44,8 +44,15 @@ def predict():
         print("Loading data from:", DATA_PATH)
 
         df = pd.read_csv(DATA_PATH)
-        df['date'] = pd.to_datetime(df['date'])
 
+        df['date'] = pd.to_datetime(df['date'], format='%m/%d/%Y', errors='coerce')
+        df = df.dropna(subset=['date'])
+
+        if df.empty:
+            raise ValueError("Dataset is empty after parsing dates")
+
+        df = df.sort_values('date')
+        
         last_date = df['date'].max()
 
         future_data = []
@@ -104,8 +111,16 @@ def analytics():
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     DATA_PATH = os.path.join(BASE_DIR, 'data', 'train.csv')
     print("Loading data from:", DATA_PATH)
+    
     df = pd.read_csv(DATA_PATH)
-    df['date'] = pd.to_datetime(df['date'])
+
+    df['date'] = pd.to_datetime(df['date'], format='%m/%d/%Y', errors='coerce')
+    df = df.dropna(subset=['date'])
+
+    if df.empty:
+        raise ValueError("Dataset is empty after parsing dates")
+
+    df = df.sort_values('date')
 
     # 📈 Demand trend
     trend = df.groupby('date')['sales'].sum().tail(days)
