@@ -66,8 +66,7 @@ def predict():
         print("NaT count:", df['date'].isna().sum())
         print("After cleaning shape:", df.shape)
 
-        df = df.sort_values(by='date', kind='mergesort')
-
+        df = df.sort_values(by='date', kind='stable')
 
         last_date = df['date'].max()
 
@@ -150,7 +149,7 @@ def analytics():
     print("NaT count:", df['date'].isna().sum())
     print("After cleaning shape:", df.shape)
 
-    df = df.sort_values(by='date', kind='mergesort')
+    df = df.sort_values(by='date', kind='stable')
 
     
 
