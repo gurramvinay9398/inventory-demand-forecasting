@@ -11,28 +11,25 @@ def train_model():
     DATA_PATH = os.path.join(BASE_DIR, 'data', 'train.csv')
     print("Loading data from:", DATA_PATH)
 
-    df = pd.read_csv(DATA_PATH)
+    df = pd.read_csv(DATA_PATH, sep=',', engine='python')
 
-    # Convert date
+    df.columns = df.columns.str.strip().str.lower()
 
-    # ✅ Clean column names (IMPORTANT)
-    df.columns = df.columns.str.strip()
+    print("Columns:", df.columns)
 
-    # ✅ Convert date manually
-    df['date'] = pd.to_datetime(df['date'], dayfirst=False, errors='coerce')
+    if 'date' not in df.columns:
+        raise ValueError("Date column missing")
 
-    # 🔥 If still empty → try alternative parsing
-    if df['date'].isna().all():
-        df['date'] = pd.to_datetime(df['date'], dayfirst=True, errors='coerce')
-
-    # Drop invalid rows
+    df['date'] = pd.to_datetime(df['date'], errors='coerce')
     df = df.dropna(subset=['date'])
 
-    # Final safety
+    print("Shape:", df.shape)
+
     if df.empty:
-        raise ValueError("Dataset is empty - date parsing failed completely")
+        raise ValueError("Dataset empty after processing")
 
 
+    
     # Feature Engineering (VERY IMPORTANT 🔥)
     df['day'] = df['date'].dt.day
     df['month'] = df['date'].dt.month

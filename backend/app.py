@@ -43,24 +43,22 @@ def predict():
         DATA_PATH = os.path.join(BASE_DIR, 'data', 'train.csv')
         print("Loading data from:", DATA_PATH)
 
-        df = pd.read_csv(DATA_PATH)
+        df = pd.read_csv(DATA_PATH, sep=',', engine='python')
 
-        # ✅ Clean column names (IMPORTANT)
-        df.columns = df.columns.str.strip()
+        df.columns = df.columns.str.strip().str.lower()
 
-        # ✅ Convert date manually
-        df['date'] = pd.to_datetime(df['date'], dayfirst=False, errors='coerce')
+        print("Columns:", df.columns)
 
-        # 🔥 If still empty → try alternative parsing
-        if df['date'].isna().all():
-            df['date'] = pd.to_datetime(df['date'], dayfirst=True, errors='coerce')
+        if 'date' not in df.columns:
+            raise ValueError("Date column missing")
 
-        # Drop invalid rows
+        df['date'] = pd.to_datetime(df['date'], errors='coerce')
         df = df.dropna(subset=['date'])
 
-        # Final safety
+        print("Shape:", df.shape)
+
         if df.empty:
-            raise ValueError("Dataset is empty - date parsing failed completely")
+            raise ValueError("Dataset empty after processing")
 
         df = df.sort_values('date')
 
@@ -123,26 +121,26 @@ def analytics():
     DATA_PATH = os.path.join(BASE_DIR, 'data', 'train.csv')
     print("Loading data from:", DATA_PATH)
     
-    df = pd.read_csv(DATA_PATH)
+    df = pd.read_csv(DATA_PATH, sep=',', engine='python')
 
-    # ✅ Clean column names (IMPORTANT)
-    df.columns = df.columns.str.strip()
+    df.columns = df.columns.str.strip().str.lower()
 
-    # ✅ Convert date manually
-    df['date'] = pd.to_datetime(df['date'], dayfirst=False, errors='coerce')
+    print("Columns:", df.columns)
 
-    # 🔥 If still empty → try alternative parsing
-    if df['date'].isna().all():
-        df['date'] = pd.to_datetime(df['date'], dayfirst=True, errors='coerce')
+    if 'date' not in df.columns:
+        raise ValueError("Date column missing")
 
-    # Drop invalid rows
+    df['date'] = pd.to_datetime(df['date'], errors='coerce')
     df = df.dropna(subset=['date'])
 
-    # Final safety
+    print("Shape:", df.shape)
+
     if df.empty:
-        raise ValueError("Dataset is empty - date parsing failed completely")
+        raise ValueError("Dataset empty after processing")
 
     df = df.sort_values('date')
+
+    
 
     # 📈 Demand trend
     trend = df.groupby('date')['sales'].sum().tail(days)
