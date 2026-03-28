@@ -7,7 +7,7 @@ import os
 from model import train_model      
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 MODEL_PATH = "demand_model.pkl"
 if os.path.exists(MODEL_PATH):
@@ -19,6 +19,13 @@ else:
 @app.route('/')
 def home():
     return "Sales Prediction API Running!"
+
+@app.after_request
+def after_request(response):
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+    response.headers.add('Access-Control-Allow-Methods', 'GET,POST,OPTIONS')
+    return response
 
 @app.route('/predict', methods=['POST'])
 def predict():
