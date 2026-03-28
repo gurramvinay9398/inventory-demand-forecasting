@@ -49,7 +49,7 @@ def train_model():
     y = df['sales']
 
     # Time-based split (IMPORTANT)
-    df = df.sort_values(by='date', kind='stable')
+    
     split = int(len(df) * 0.8)
 
     X_train = X[:split]
