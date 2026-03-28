@@ -1,15 +1,14 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>AI Inventory Dashboard</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<title>AI Inventory System</title>
 
 <style>
 body {
     margin: 0;
     font-family: 'Segoe UI';
     background: linear-gradient(135deg, #0f2c3f, #1f4e5f);
-    color: #f5f5f5;
+    color: white;
 }
 
 /* NAVBAR */
@@ -19,20 +18,24 @@ body {
     padding: 20px 40px;
 }
 
-.navbar h2 { color: #e6c9a8; }
+.navbar h2 {
+    color: #e6c9a8;
+}
 
-/* NAV HOVER */
+/* NAV LINKS */
 .nav-links a {
     margin: 0 15px;
-    color: white;
+    color: #f5f5f5;
     text-decoration: none;
     position: relative;
+    transition: 0.3s;
 }
 
 .nav-links a:hover {
     color: #e6c9a8;
 }
 
+/* Underline animation */
 .nav-links a::after {
     content: "";
     position: absolute;
@@ -48,142 +51,181 @@ body {
     width: 100%;
 }
 
-/* Layout */
-.container { padding: 20px; }
-
-.card {
-    background: #1f4e5f;
-    padding: 20px;
-    margin: 10px;
-    border-radius: 12px;
-}
-
-.grid {
+/* HERO */
+.hero {
     display: flex;
-    gap: 10px;
+    align-items: center;
+    justify-content: space-between;
+    padding: 60px;
 }
 
-.grid .card { flex: 1; }
-
-select, input {
-    padding: 10px;
-    margin: 5px;
-    border-radius: 6px;
-    border: none;
-    background: #e6c9a8;
-    color: #0f2c3f;
+/* TEXT */
+.hero-text {
+    max-width: 50%;
 }
 
+.hero-text h1 {
+    font-size: 48px;
+    color: #e6c9a8;
+}
+
+.hero-text p {
+    font-size: 18px;
+}
+
+/* BUTTON */
 button {
     background: #d2a679;
     border: none;
-    padding: 10px 15px;
-    cursor: pointer;
+    padding: 12px 20px;
+    color: #0f2c3f;
     font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
 }
 
-.alert-text {
-    font-size: 18px;
-    font-weight: bold;
-    color: #d2a679;
+button:hover {
+    background: #c29566;
+}
+
+/* IMAGE CONTAINER */
+.slider {
+    width: 450px;
+    height: 280px;
+    position: relative;
+}
+
+/* IMAGE STYLE */
+.hero-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 10px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: none;
+    box-shadow: 0 0 40px rgba(0,0,0,0.5);
+}
+
+/* FEATURES */
+.features {
+    display: flex;
+    justify-content: space-around;
+    margin: 60px;
+    gap: 20px;
+}
+
+.feature {
+    text-align: center;
+    width: 260px;
+    padding: 20px;
+    background: #1f4e5f;
+    border-radius: 12px;
+    transition: 0.3s;
+    cursor: pointer;
+}
+
+/* Hover effect */
+.feature:hover {
+    transform: translateY(-10px) scale(1.05);
+    background: #2a6275;
+}
+
+/* FOOTER */
+.footer {
+    text-align: center;
+    margin: 40px;
+    color: #e6c9a8;
 }
 </style>
+
 </head>
 
 <body>
 
 <!-- NAVBAR -->
 <div class="navbar">
-    <h2>📊 Dashboard</h2>
+    <h2> AI Inventory</h2>
+
     <div class="nav-links">
-        <a href="home.html">Home</a>
-        <a href="#">Prediction</a>
+        <a href="#">Home</a>
+        <a href="predict.html">Prediction</a>
         <a href="analytics.html">Analytics</a>
     </div>
 </div>
 
-<div class="container">
+<!-- HERO -->
+<div class="hero">
 
-<div class="card">
-    <h3>Input</h3>
-    <select id="store"></select>
-    <select id="item"></select>
-    <select id="days"></select>
-    <input id="stock" type="number" placeholder="Stock">
-    <button onclick="predict()">Predict</button>
+    <!-- TEXT -->
+    <div class="hero-text">
+        <h1>AI-Powered Inventory Optimization</h1>
+        <p>Enhance your business with predictive insights and optimized stock decisions.</p>
+
+        <button onclick="goToDashboard()">Get Started</button>
+    </div>
+
+    <!-- IMAGE SLIDER -->
+    <div class="slider">
+        <img class="hero-img" src="image2.img">
+        <img class="hero-img" src="image3.img">
+    </div>
+
 </div>
 
-<div class="grid">
-    <div class="card">
-        <h3>Total Demand</h3>
-        <p id="total">--</p>
+<!-- FEATURES -->
+<div class="features">
+
+    <div class="feature">
+        <div style="font-size:40px;">📊</div>
+        <h3>Accurate Forecasting</h3>
+        <p>Predict demand using machine learning</p>
     </div>
-    <div class="card">
-        <h3>Recommended</h3>
-        <p id="recommended">--</p>
+
+    <div class="feature">
+        <div style="font-size:40px;">📦</div>
+        <h3>Smart Inventory</h3>
+        <p>Optimize stock and reduce waste</p>
     </div>
-    <div class="card">
-        <h3>Alert</h3>
-        <p id="alertBox" class="alert-text">--</p>
+
+    <div class="feature">
+        <div style="font-size:40px;">🚨</div>
+        <h3>Real-Time Alerts</h3>
+        <p>Get alerts for low and excess stock</p>
     </div>
+
 </div>
 
-<div class="card">
-    <canvas id="chart"></canvas>
-</div>
-
+<!-- FOOTER -->
+<div class="footer">
+    “AI-driven insights for smarter business decisions”
 </div>
 
 <script>
-let chart;
-
-for (let i = 1; i <= 10; i++)
-    store.innerHTML += `<option value="${i}">Store ${i}</option>`;
-
-for (let i = 1; i <= 50; i++)
-    item.innerHTML += `<option value="${i}">Item ${i}</option>`;
-
-for (let i = 1; i <= 10; i++)
-    days.innerHTML += `<option value="${i}">${i} Days</option>`;
-
-function predict() {
-
-const data = {
-    store: +store.value,
-    item: +item.value,
-    days: +days.value,
-    stock: +stock.value
-};
-
-fetch("https://inventory-demand-forecasting.onrender.com/predict", {
-    method: "POST",
-    headers: {"Content-Type": "application/json"},
-    body: JSON.stringify(data)
-})
-.then(res => res.json())
-.then(data => {
-
-    alertBox.innerText = data.alert;
-    total.innerText = data.total_demand;
-    recommended.innerText = data.recommended_stock;
-
-    let values = data.daily_predictions.map(d => d.predicted_demand);
-
-    if (chart) chart.destroy();
-
-    chart = new Chart(document.getElementById("chart"), {
-        type: 'line',
-        data: {
-            labels: values.map((_, i) => `Day ${i+1}`),
-            datasets: [{
-                data: values,
-                borderColor: "#d2a679"
-            }]
-        }
-    });
-
-});
+// Navigation
+function goToDashboard() {
+    window.location.href = "index.html";
 }
+
+// SLIDER LOGIC
+let index = 0;
+let slides = document.getElementsByClassName("hero-img");
+
+function showSlides() {
+    for (let i = 0; i < slides.length; i++) {
+        slides[i].style.display = "none";
+    }
+
+    index++;
+    if (index > slides.length) index = 1;
+
+    slides[index - 1].style.display = "block";
+
+    setTimeout(showSlides, 2500);
+}
+
+showSlides();
 </script>
 
 </body>
